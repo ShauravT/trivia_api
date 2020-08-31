@@ -6,9 +6,12 @@ from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import random
-
+from werkzeug.exceptions import HTTPException
 from models import setup_db, Question, Category
 
+# ----------------------------------------------------------------------------#
+# Pagination
+# ----------------------------------------------------------------------------#
 QUESTIONS_PER_PAGE = 10
 
 
@@ -27,7 +30,6 @@ def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__)
     setup_db(app)
-
     '''
     @TODO: Set up CORS. Allow '*' for origins.
     '''
@@ -37,21 +39,27 @@ def create_app(test_config=None):
     '''
     @app.after_request
     def after_request(response):
-        response.headers.add(
-          'Access-Control-Allow-Headers',
-          'Content-Type, Authorization, true'
-        )
-        response.headers.add(
-          'Access-Control-Allow-Methods',
-          'GET, PATCH, POST, DELETE, OPTIONS'
-        )
+        response.headers.add('Access-Control-Allow-Headers',
+                             'Content-Type, Authorization, true')
+        response.headers.add('Access-Control-Allow-Methods',
+                             'GET, PATCH, POST, DELETE, OPTIONS')
+        return response
     '''
     @TODO:
     Create an endpoint to handle GET requests
     for all available categories.
     '''
-
-
+    @app.route('/categories', methods=['GET'])
+    def get_categories():
+        categories = Category.query.all()
+        if len(categories) == 0:
+            return abort(404, 'Categories not found')
+        return jsonify({
+          'success':True,
+          'categories':{
+            category.id: category.type for category in categories
+            }
+        })
     '''
     @TODO:
     Create an endpoint to handle GET requests for questions,
@@ -64,7 +72,25 @@ def create_app(test_config=None):
     ten questions per page and pagination at the bottom of the screen for three pages.
     Clicking on the page numbers should update the questions.
     '''
+    @app.route('/questions', methods=['GET'])
+    def get_questions():
+        selection = Question.query.order_by(Question.id).all()
+        current_questions = paginate_questions(request, selection)
+        categories = Category.query.all()
 
+        if len(current_questions) == 0:
+            return abort(404, 'Questions not found')
+
+        return jsonify({
+          'success': True,
+          'questions': current_questions,
+          'total_questions': len(Question.query.all()),
+          'current_category': None,
+          'categories':{
+            category.id: category.type for category in categories
+            },
+
+        })
     '''
     @TODO:
     Create an endpoint to DELETE question using a question ID.
@@ -122,19 +148,19 @@ def create_app(test_config=None):
     Create error handlers for all expected errors
     including 404 and 422.
     '''
-    @app.errorhandler(HTTPException)
-    def http_exception_handler(error):
-        return jsonify({
-          'Success': False,
-          'error': error.code,
-          'message': error.description
-          }), error.code
+    # @app.errorhandler(HTTPException)
+    # def http_exception_handler(error):
+    #     return jsonify({
+    #       'Success': False,
+    #       'error': error.code,
+    #       'message': error.description
+    #       }), error.code
 
-    @app.errorhandler(Exception)
-    def exception_handler(error):
-        return jsonify({
-          'Success': False,
-          'error': 500,
-          'message': f'Internal Server error: {error}'
-        }), 500
+    # @app.errorhandler(Exception)
+    # def exception_handler(error):
+    #     return jsonify({
+    #       'Success': False,
+    #       'error': 500,
+    #       'message': f'Internal Server error: {error}'
+    #     }), 500
     return app
