@@ -117,7 +117,8 @@ def create_app(test_config=None):
         new_answer = body.get_json('answer', None)
         new_category = body.get_json('category', None)
         new_difficulty = body.get_json('difficulty', None)
-
+        if not (new_question and new_answer and new_category and new_difficulty):
+            return abort(400, 'Required object keys missing from request')
         try:
             question = Question(
                 question=new_question, answer=new_answer,
@@ -135,7 +136,7 @@ def create_app(test_config=None):
                 'total_question': len(Question.query.all())
                 })
         except Exception as e:
-            return abort(500)
+            return abort(500, e)
 
     '''
     @TODO:
@@ -147,7 +148,36 @@ def create_app(test_config=None):
     only question that include that string within their question.
     Try using the word "title" to start.
     '''
+    @app.route('/questions/search', methods=['POST'])
+    def search_questions():
+        try:
+            body = request.get_json()
+            search = body.get('searchTerm', None)
 
+            if search:
+                selection = Question.query.filter(
+                    Question.question.ilike(f'%{search}%')
+                    ).all()
+
+                if selection:
+                    current_questions = paginate_questions(request, selection)
+
+                else:
+                    return jsonify({
+                        'selection': False,
+                        'questions': None,
+                        'total_questions': None,
+                        'current_category': None
+                    })
+        except Exception as e:
+            return abort(404, e)
+
+        return jsonify({
+            'selection': True,
+            'questions': current_questions,
+            'total_questions': len(selection),
+            'current_category': None
+            })
     '''
     @TODO:
     Create a GET endpoint to get questions based on category.
@@ -156,7 +186,30 @@ def create_app(test_config=None):
     categories in the left column will cause only questions of that
     category to be shown.
     '''
+    @app.route('/categories/<int:category_id>/questions', methods=['GET'])
+    def get_questions_by_category(category_id):
+        try:
+            selection = Question.query.filter(
+                Question.category == str(category_id)
+                ).all()
+            current_questions = paginate_questions(request, selection)
 
+            if len(current_questions) == 0:
+                return jsonify({
+                    'success': False,
+                    'questions': None,
+                    'total_questions': len(Question.query.all()),
+                    'current_category': category_id
+                })
+        except Exception as e:
+            return abort(500, e)
+
+        return jsonify({
+            'success': True,
+            'questions': current_questions,
+            'total_questions': len(Question.query.all()),
+            'current_category': category_id
+            })
     '''
     @TODO:
     Create a POST endpoint to get questions to play the quiz.
