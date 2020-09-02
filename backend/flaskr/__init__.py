@@ -66,11 +66,6 @@ def create_app(test_config=None):
     including pagination (every 10 questions).
     This endpoint should return a list of questions,
     number of total questions, current category, categories.
-
-    TEST: At this point, when you start the application
-    you should see questions and categories generated,
-    ten questions per page and pagination at the bottom of the screen for three pages.
-    Clicking on the page numbers should update the questions.
     '''
     @app.route('/questions', methods=['GET'])
     def get_questions():
@@ -94,15 +89,12 @@ def create_app(test_config=None):
     '''
     @TODO:
     Create an endpoint to DELETE question using a question ID.
-
-    TEST: When you click the trash icon next to a question, the question will be removed.
-    This removal will persist in the database and when you refresh the page.
     '''
     @app.route('/questions/<int:question_id>', methods=['DELETE'])
     def delete_question(question_id):
         try:
             question = Question.query.filter(
-                Question.id==question_id
+                Question.id == question_id
             ).one_or_none()
 
             if question is None:
@@ -116,31 +108,27 @@ def create_app(test_config=None):
             })
 
         except Exception as e:
-            return abort(500, e)
+            return abort(e)
     '''
     @TODO:
     Create an endpoint to POST a new question,
     which will require the question and answer text,
     category, and difficulty score.
-
-    TEST: When you submit a question on the "Add" tab,
-    the form will clear and the question will appear at the end of the last page
-    of the questions list in the "List" tab.
     '''
     @app.route('/questions', methods=['POST'])
     def create_question():
         body = request.get_json()
 
-        new_question = body.get_json('question', None)
-        new_answer = body.get_json('answer', None)
-        new_category = body.get_json('category', None)
-        new_difficulty = body.get_json('difficulty', None)
-        if not (new_question and new_answer and new_category and new_difficulty):
+        question = body.get_json('question', None)
+        answer = body.get_json('answer', None)
+        category = body.get_json('category', None)
+        difficulty = body.get_json('difficulty', None)
+        if not (question and answer and category and difficulty):
             return abort(400, 'Required object keys missing from request')
         try:
             question = Question(
-                question=new_question, answer=new_answer,
-                category=new_category, difficulty=new_difficulty
+                question=question, answer=answer,
+                category=category, difficulty=difficulty
                 )
             question.insert()
 
@@ -154,17 +142,13 @@ def create_app(test_config=None):
                 'total_question': len(Question.query.all())
                 })
         except Exception as e:
-            return abort(500, e)
+            return abort(e)
 
     '''
     @TODO:
     Create a POST endpoint to get questions based on a search term.
     It should return any questions for whom the search term
     is a substring of the question.
-
-    TEST: Search by any phrase. The questions list will update to include
-    only question that include that string within their question.
-    Try using the word "title" to start.
     '''
     @app.route('/questions/search', methods=['POST'])
     def search_questions():
@@ -188,7 +172,7 @@ def create_app(test_config=None):
                         'current_category': None
                     })
         except Exception as e:
-            return abort(404, e)
+            return abort(e)
 
         return jsonify({
             'selection': True,
@@ -199,10 +183,6 @@ def create_app(test_config=None):
     '''
     @TODO:
     Create a GET endpoint to get questions based on category.
-
-    TEST: In the "List" tab / main screen, clicking on one of the
-    categories in the left column will cause only questions of that
-    category to be shown.
     '''
     @app.route('/categories/<int:category_id>/questions', methods=['GET'])
     def get_questions_by_category(category_id):
@@ -220,7 +200,7 @@ def create_app(test_config=None):
                     'current_category': category_id
                 })
         except Exception as e:
-            return abort(500, e)
+            return abort(e)
 
         return jsonify({
             'success': True,
