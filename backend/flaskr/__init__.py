@@ -101,10 +101,14 @@ def create_app(test_config=None):
                 return abort(404, f'Question with id: {question_id} not found')
 
             question.delete()
+            selection = Question.query.order_by(Question.id).all()
+            current_questions = paginate_question(request, selection)
 
             return jsonify({
                 'success': True,
-                'deleted': question_id
+                'deleted': question_id,
+                'questions': current_questions,
+                'total_questions': len(Question.query.all())
             })
 
         except Exception as e:
