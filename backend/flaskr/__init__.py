@@ -92,7 +92,7 @@ def create_app(test_config=None):
 
     # Delete
     # ----------------------------------------------------------------------------#
-    @app.route('categories/<int:category_id>', methods=['DELETE'])
+    @app.route('/categories/<int:category_id>', methods=['DELETE'])
     def delete_category(category_id):
         try:
             category = Category.query.filter(
@@ -100,7 +100,7 @@ def create_app(test_config=None):
             ).one_or_none()
 
             if category is None:
-                return abort(404, f'Category with id:{category_id} not found')
+                return abort(404, 'Category with id:{category_id} not found')
 
             category.delete()
             categories = Category.query.all()
@@ -308,7 +308,7 @@ def create_app(test_config=None):
     @app.errorhandler(HTTPException)
     def http_exception_handler(error):
         return jsonify({
-          'Success': False,
+          'success': False,
           'error': error.code,
           'message': error.description
           }), error.code
@@ -316,7 +316,7 @@ def create_app(test_config=None):
     @app.errorhandler(Exception)
     def exception_handler(error):
         return jsonify({
-          'Success': False,
+          'success': False,
           'error': 500,
           'message': f'Internal Server error: {error}'
         }), 500
