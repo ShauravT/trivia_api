@@ -57,12 +57,12 @@ def create_app(test_config=None):
     def create_category():
         body = request.get_json()
 
-        category = body.get_json('category', None)
+        category_type = body.get('type', None)
 
-        if not category:
+        if not category_type:
             return abort(400, 'Required object keys missing from request')
         try:
-            category = Category(type=category)
+            category = Category(type=category_type)
             category.insert()
 
             categories = Category.query.all()
@@ -70,8 +70,10 @@ def create_app(test_config=None):
             return jsonify({
                 'success': True,
                 'created': category.id,
-                'categories': categories,
-                'total_question': len(categories)
+                'categories': {
+                    category.id: category.type for category in categories
+                },
+                'total_categories': len(categories)
                 })
         except Exception as e:
             return abort(e)
@@ -152,10 +154,10 @@ def create_app(test_config=None):
     def create_question():
         body = request.get_json()
 
-        question = body.get_json('question', None)
-        answer = body.get_json('answer', None)
-        category = body.get_json('category', None)
-        difficulty = body.get_json('difficulty', None)
+        question = body.get('question', None)
+        answer = body.get('answer', None)
+        category = body.get('category', None)
+        difficulty = body.get('difficulty', None)
         if not (question and answer and category and difficulty):
             return abort(400, 'Required object keys missing from request')
         try:
