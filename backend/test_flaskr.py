@@ -43,6 +43,17 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
         self.assertTrue(len(data['categories']))
 
+    def test_post_categories(self):
+        post_data = {
+            'type': 'a'
+        }
+        res = self.client().post('/categories', json=post_data)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+
+
     def test_get_paginated_questions(self):
         res = self.client().get('questions')
         data = json.loads(res.data)
@@ -60,6 +71,19 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'Questions not found')
+
+    def test_post_questions(self):
+        post_data = {
+            'question': 'a',
+            'answer': 'a',
+            'category': 1,
+            'difficulty': 3
+        }
+        res = self.client().post('/questions', json=post_data)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
 
 
 # Make the tests conveniently executable
