@@ -34,11 +34,11 @@ def create_app(test_config=None):
     app = Flask(__name__)
     setup_db(app)
     '''
-    @TODO: Set up CORS. Allow '*' for origins.
+    CORS. Allow '*' for origins.
     '''
     cors = CORS(app, resources={r'/*': {'origins': '*'}})
     '''
-    @TODO: Use the after_request decorator to set Access-Control-Allow
+    Decorator to set Access-Control-Allow
     '''
     @app.after_request
     def after_request(response):
@@ -229,34 +229,31 @@ def create_app(test_config=None):
 
     # Search by text
     # ----------------------------------------------------------------------------#
-    @app.route('/questions/search', methods=['POST'])
+    @app.route('/search', methods=['POST'])
     def search_questions():
+        body = request.get_json()
+        search_term = body.get('searchTerm', None)
+
+        if not search_term:
+            abort(422, 'unprocessable')
+
         try:
-            body = request.get_json()
-            search = body.get('searchTerm', None)
+            selection = Question.query.filter(
+                Question.question.ilike(
+                    '%{}%'.format(search_term)
+                )).all()
 
-            if search:
-                selection = Question.query.filter(
-                    Question.question.ilike(f'%{search}%')
-                    ).all()
+            if not selection:
+                abort(404,'Question not found!')
 
-                if selection:
-                    current_questions = paginate_questions(request, selection)
-                    return jsonify({
-                        'selection': True,
-                        'questions': current_questions,
-                        'total_questions': len(selection),
-                        'current_category': None
-                        })
-                else:
-                    return jsonify({
-                        'selection': False,
-                        'questions': None,
-                        'total_questions': None,
-                        'current_category': None
-                    })
+            current_questions = paginate_questions(request, selection)
+            return jsonify({
+                'success': True,
+                'questions': current_questions,
+                'total_questions': len(current_questions)
+            })
         except:
-            return abort(422, "unprocessable")
+            abort(500)
 
     # ----------------------------------------------------------------------------#
     # QUIZ
