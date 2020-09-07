@@ -75,8 +75,8 @@ def create_app(test_config=None):
                 },
                 'total_categories': len(categories)
                 })
-        except Exception as e:
-            return abort(e)
+        except:
+            return abort(422, "unprocessable")
 
     # Read
     # ----------------------------------------------------------------------------#
@@ -100,22 +100,21 @@ def create_app(test_config=None):
             category = Category.query.filter(
                 Category.id == category_id
             ).one_or_none()
-
             if category is None:
-                return abort(404, 'Category with id:{category_id} not found')
+                return abort(404, f'Category with id:{category_id} not found')
 
             category.delete()
             categories = Category.query.all()
 
-        except Exception as e:
-            return abort(e)
+            return jsonify({
+                'success': True,
+                'deleted': category_id,
+                'categories': categories,
+                'total_categories': len(categories)
+                })
 
-        return jsonify({
-            'success': True,
-            'deleted': category_id,
-            'categories': categories,
-            'total_categories': len(categories)
-        })
+        except:
+            return abort(404, f'Category with id:{category_id} not found')
 
     # Search by Category
     # ----------------------------------------------------------------------------#
@@ -134,15 +133,16 @@ def create_app(test_config=None):
                     'total_questions': len(Question.query.all()),
                     'current_category': category_id
                 })
-        except Exception as e:
-            return abort(e)
 
-        return jsonify({
-            'success': True,
-            'questions': current_questions,
-            'total_questions': len(Question.query.all()),
-            'current_category': category_id
+            return jsonify({
+                'success': True,
+                'questions': current_questions,
+                'total_questions': len(Question.query.all()),
+                'current_category': category_id
             })
+
+        except:
+            return abort(422, "unprocessable")
 
     # ----------------------------------------------------------------------------#
     # QUESTIONS
@@ -176,8 +176,8 @@ def create_app(test_config=None):
                 'questions': current_questions,
                 'total_question': len(Question.query.all())
                 })
-        except Exception as e:
-            return abort(e)
+        except:
+            return abort(422, "unprocessable")
 
     # Read
     # ----------------------------------------------------------------------------#
@@ -211,23 +211,21 @@ def create_app(test_config=None):
             question = Question.query.filter(
                 Question.id == question_id
             ).one_or_none()
-
             if question is None:
                 return abort(404, f'Question with id:{question_id} not found')
 
             question.delete()
             selection = Question.query.order_by(Question.id).all()
-            current_questions = paginate_question(request, selection)
+            current_questions = paginate_questions(request, selection)
 
             return jsonify({
                 'success': True,
                 'deleted': question_id,
                 'questions': current_questions,
                 'total_questions': len(Question.query.all())
-            })
-
-        except Exception as e:
-            return abort(e)
+                })
+        except:
+            return abort(404, f'Question with id:{question_id} not found')
 
     # Search by text
     # ----------------------------------------------------------------------------#
@@ -244,7 +242,12 @@ def create_app(test_config=None):
 
                 if selection:
                     current_questions = paginate_questions(request, selection)
-
+                    return jsonify({
+                        'selection': True,
+                        'questions': current_questions,
+                        'total_questions': len(selection),
+                        'current_category': None
+                        })
                 else:
                     return jsonify({
                         'selection': False,
@@ -252,15 +255,8 @@ def create_app(test_config=None):
                         'total_questions': None,
                         'current_category': None
                     })
-        except Exception as e:
-            return abort(e)
-
-        return jsonify({
-            'selection': True,
-            'questions': current_questions,
-            'total_questions': len(selection),
-            'current_category': None
-            })
+        except:
+            return abort(422, "unprocessable")
 
     # ----------------------------------------------------------------------------#
     # QUIZ
@@ -301,8 +297,8 @@ def create_app(test_config=None):
                 'question': question.format()
             })
 
-        except Exception as e:
-            return abort(e)
+        except:
+            return abort(422, "unprocessable")
 
     # ----------------------------------------------------------------------------#
     # ERROR HANDLERS
