@@ -239,9 +239,8 @@ def create_app(test_config=None):
 
         try:
             selection = Question.query.filter(
-                Question.question.ilike(
-                    '%{}%'.format(search_term)
-                )).all()
+                Question.question.ilike('%{}%'.format(search_term))
+                )
 
             if not selection:
                 abort(404,'Question not found!')

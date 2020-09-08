@@ -104,14 +104,14 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
 
     # def test_delete_question(self):
-    #     res = self.client().delete('/questions/10')
+    #     res = self.client().delete('/questions/38')
     #     data = json.loads(res.data)
 
-    #     question = Question.query.filter(Question.id == 10).one_or_none()
+    #     question = Question.query.filter(Question.id == 38).one_or_none()
 
     #     self.assertEqual(res.status_code, 200)
     #     self.assertEqual(data['success'], True)
-    #     self.assertEqual(data['deleted'], 10)
+    #     self.assertEqual(data['deleted'], 38)
     #     self.assertEqual(question, None)
 
     def test_404_if_question_does_not_exist(self):
@@ -122,7 +122,13 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'Question with id:1000 not found')
 
+    def test_get_question_search_with_text(self):
+        search_term = {"searchTerm": "whom"}
+        res = self.client().post('/search', json=search_term)
+        data = json.loads(res.data)
 
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
