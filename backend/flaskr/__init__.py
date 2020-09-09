@@ -127,12 +127,7 @@ def create_app(test_config=None):
             current_questions = paginate_questions(request, selection)
 
             if len(current_questions) == 0:
-                return jsonify({
-                    'success': False,
-                    'questions': None,
-                    'total_questions': len(Question.query.all()),
-                    'current_category': category_id
-                })
+                 return abort(422, "unprocessable")
 
             return jsonify({
                 'success': True,
@@ -171,6 +166,8 @@ def create_app(test_config=None):
 
             selection = Question.query.order_by(Question.category).all()
             current_questions = paginate_questions(request, selection)
+            if len(current_questions) == 0:
+                 return abort(422, "unprocessable")
 
             return jsonify({
                 'success': True,
@@ -189,12 +186,12 @@ def create_app(test_config=None):
         try:
             current_questions = paginate_questions(request, selection)
             if len(current_questions) == 0:
-                abort(404,'Questions not found')
+                 return abort(422, "unprocessable")
 
             categories = Category.query.all()
 
             if len(categories) == 0:
-                abort(404,'Categories not found')
+                return abort(404,'Categories not found')
 
             return jsonify({
                 'success': True,
@@ -222,6 +219,8 @@ def create_app(test_config=None):
             selection = Question.query.order_by(Question.id).all()
             current_questions = paginate_questions(request, selection)
 
+            if len(current_questions) == 0:
+                 return abort(422, "unprocessable")
             return jsonify({
                 'success': True,
                 'deleted': question_id,
@@ -246,28 +245,29 @@ def create_app(test_config=None):
             ).all()
 
         if not selection:
-            abort(404,'Question not found!')
+            abort(404,'Question not found')
 
-        try:
-            current_questions = paginate_questions(request, selection)
-            return jsonify({
+        current_questions = paginate_questions(request, selection)
+        if len(current_questions)== 0:
+             return abort(422, "unprocessable")
+
+        return jsonify({
                 'success': True,
                 'questions': current_questions,
                 'total_questions': len(current_questions)
             })
-        except:
-            abort(500)
+
 
     # ----------------------------------------------------------------------------#
     # QUIZ
     # ----------------------------------------------------------------------------#
     @app.route('/quizzes', methods=['POST'])
     def play_quiz():
-        body = request.get_json()
-        quiz_category = body.get('quiz_category', None)
-        previous_question = body.get('previous_question', None)
-
         try:
+            body = request.get_json()
+            quiz_category = body.get('quiz_category', None)
+            previous_question = body.get('previous_question', None)
+
             if quiz_category['id'] == 0:
                 if previous_question is None:
                     questions = Question.query.all()
@@ -286,9 +286,6 @@ def create_app(test_config=None):
                         Question.category == quiz_category['id'],
                         Question.id.notin_(previous_question)
                         ).all()
-
-            else:
-                return abort(422, 'unprocessable')
 
             question = random.choice(questions) if len(questions) > 0 else ''
 
