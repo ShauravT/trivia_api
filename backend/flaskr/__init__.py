@@ -127,7 +127,7 @@ def create_app(test_config=None):
             current_questions = paginate_questions(request, selection)
 
             if len(current_questions) == 0:
-                 return abort(422, "unprocessable")
+                return abort(422, "unprocessable")
 
             return jsonify({
                 'success': True,
@@ -167,7 +167,7 @@ def create_app(test_config=None):
             selection = Question.query.order_by(Question.category).all()
             current_questions = paginate_questions(request, selection)
             if len(current_questions) == 0:
-                 return abort(422, "unprocessable")
+                return abort(422, "unprocessable")
 
             return jsonify({
                 'success': True,
@@ -186,12 +186,12 @@ def create_app(test_config=None):
         try:
             current_questions = paginate_questions(request, selection)
             if len(current_questions) == 0:
-                 return abort(422, "unprocessable")
+                return abort(422, "unprocessable")
 
             categories = Category.query.all()
 
             if len(categories) == 0:
-                return abort(404,'Categories not found')
+                return abort(404, 'Categories not found')
 
             return jsonify({
                 'success': True,
@@ -220,7 +220,8 @@ def create_app(test_config=None):
             current_questions = paginate_questions(request, selection)
 
             if len(current_questions) == 0:
-                 return abort(422, "unprocessable")
+                return abort(422, "unprocessable")
+
             return jsonify({
                 'success': True,
                 'deleted': question_id,
@@ -245,18 +246,17 @@ def create_app(test_config=None):
             ).all()
 
         if not selection:
-            abort(404,'Question not found')
+            abort(404, 'Question not found')
 
         current_questions = paginate_questions(request, selection)
-        if len(current_questions)== 0:
-             return abort(422, "unprocessable")
+        if len(current_questions) == 0:
+            return abort(422, "unprocessable")
 
         return jsonify({
                 'success': True,
                 'questions': current_questions,
                 'total_questions': len(current_questions)
             })
-
 
     # ----------------------------------------------------------------------------#
     # QUIZ
