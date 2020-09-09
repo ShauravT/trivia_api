@@ -266,25 +266,25 @@ def create_app(test_config=None):
         try:
             body = request.get_json()
             quiz_category = body.get('quiz_category', None)
-            previous_question = body.get('previous_question', None)
+            previous_questions = body.get('previous_questions', None)
 
             if quiz_category['id'] == 0:
-                if previous_question is None:
+                if previous_questions is None:
                     questions = Question.query.all()
                 else:
                     questions = Question.query.filter(
-                        Question.id.notin_(previous_question)
+                        Question.id.notin_(previous_questions)
                         ).all()
 
             elif quiz_category['id'] != 0:
-                if previous_question is None:
+                if previous_questions is None:
                     questions = Question.query.filter(
                         Question.category == quiz_category['id']
                         ).all()
                 else:
                     questions = Question.query.filter(
                         Question.category == quiz_category['id'],
-                        Question.id.notin_(previous_question)
+                        Question.id.notin_(previous_questions)
                         ).all()
 
             question = random.choice(questions) if len(questions) > 0 else ''

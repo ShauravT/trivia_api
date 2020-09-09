@@ -48,6 +48,15 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
 
+
+    def test_400_post_category(self):
+        res = self.client().post('/categories', json={})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'],'Required object keys missing from request')
+
     # def test_delete_category(self):
     #     res = self.client().delete('/categories/15')
     #     data = json.loads(res.data)
@@ -85,7 +94,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'Questions not found')
 
-    def test_post_questions(self):
+    def test_post_question(self):
         post_data = {
             'question': 'a',
             'answer': 'a',
@@ -98,6 +107,14 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
+
+    def test_400_post_question(self):
+        res = self.client().post('/questions', json={})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'],'Required object keys missing from request')
 
     # def test_delete_question(self):
     #     res = self.client().delete('/questions/38')
