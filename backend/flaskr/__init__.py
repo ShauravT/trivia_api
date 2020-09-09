@@ -186,13 +186,16 @@ def create_app(test_config=None):
     @app.route('/questions', methods=['GET'])
     def get_questions():
         selection = Question.query.order_by(Question.id).all()
-
-        if len(selection) == 0:
-            return abort(404, 'Questions not found')
-
         try:
             current_questions = paginate_questions(request, selection)
+            if len(current_questions) == 0:
+                abort(404,'Questions not found')
+
             categories = Category.query.all()
+
+            if len(categories) == 0:
+                abort(404,'Categories not found')
+
             return jsonify({
                 'success': True,
                 'questions': current_questions,
@@ -203,7 +206,7 @@ def create_app(test_config=None):
                     }
                 })
         except:
-            abort(500)
+            abort(404, 'Questions not found')
 
     # Delete
     # ----------------------------------------------------------------------------#
