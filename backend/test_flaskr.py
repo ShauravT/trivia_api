@@ -31,11 +31,6 @@ class TriviaTestCase(unittest.TestCase):
         """Executed after reach test"""
         pass
 
-    """
-    TODO
-    Write at least one test for each test for
-    successful operation and for expected errors.
-    """
     def test_get_categories(self):
         res = self.client().get('/categories')
         data = json.loads(res.data)
@@ -123,13 +118,30 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'Question with id:1000 not found')
 
-    def test_get_question_search_with_text(self):
-        search_term = {"searchTerm": "whom"}
+    def test_post_paginated_search_questions(self):
+        search_term = {"searchTerm": "what"}
         res = self.client().post('/search', json=search_term)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
+
+    def test_422_post_paginated_search_question(self):
+        res = self.client().post('/search')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'],"unprocessable")
+
+    def test_404_post_paginated_search_question(self):
+        search_term = {"searchTerm": "blahblahblahblah"}
+        res = self.client().post('/search', json=search_term)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'],"Question not found!")
 
 # Make the tests conveniently executable
 if __name__ == "__main__":

@@ -235,15 +235,15 @@ def create_app(test_config=None):
     # ----------------------------------------------------------------------------#
     @app.route('/search', methods=['POST'])
     def search_questions():
+        if not request.data:
+            abort(422, 'unprocessable')
+
         body = request.get_json()
         search_term = body.get('searchTerm', None)
 
-        if not search_term:
-            abort(422, 'unprocessable')
-
         selection = Question.query.filter(
             Question.question.ilike('%{}%'.format(search_term))
-            )
+            ).all()
 
         if not selection:
             abort(404,'Question not found!')
