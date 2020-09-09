@@ -158,12 +158,14 @@ def create_app(test_config=None):
         answer = body.get('answer', None)
         category = body.get('category', None)
         difficulty = body.get('difficulty', None)
-        if not (question and answer and category and difficulty):
+        rating = body.get('rating', None)
+        if not (question and answer and category and difficulty and rating):
             return abort(400, 'Required object keys missing from request')
         try:
             question = Question(
                 question=question, answer=answer,
-                category=category, difficulty=difficulty
+                category=category, difficulty=difficulty,
+                rating=rating
                 )
             question.insert()
 
@@ -183,14 +185,14 @@ def create_app(test_config=None):
     # ----------------------------------------------------------------------------#
     @app.route('/questions', methods=['GET'])
     def get_questions():
+        selection = Question.query.order_by(Question.id).all()
+
+        if len(selection) == 0:
+            return abort(404, 'Questions not found')
+
         try:
-            selection = Question.query.order_by(Question.id).all()
             current_questions = paginate_questions(request, selection)
             categories = Category.query.all()
-
-            if len(current_questions) == 0:
-                return abort(404, 'Questions not found')
-
             return jsonify({
                 'success': True,
                 'questions': current_questions,
@@ -201,19 +203,18 @@ def create_app(test_config=None):
                     }
                 })
         except:
-            abort(404, 'Questions not found')
+            abort(500)
 
     # Delete
     # ----------------------------------------------------------------------------#
     @app.route('/questions/<int:question_id>', methods=['DELETE'])
     def delete_question(question_id):
-        try:
-            question = Question.query.filter(
-                Question.id == question_id
+        question = Question.query.filter(
+            Question.id == question_id
             ).one_or_none()
-            if question is None:
-                return abort(404, f'Question with id:{question_id} not found')
-
+        if question is None:
+            return abort(404, f'Question with id:{question_id} not found')
+        try:
             question.delete()
             selection = Question.query.order_by(Question.id).all()
             current_questions = paginate_questions(request, selection)
@@ -225,7 +226,7 @@ def create_app(test_config=None):
                 'total_questions': len(Question.query.all())
                 })
         except:
-            return abort(404, f'Question with id:{question_id} not found')
+            return abort(500)
 
     # Search by text
     # ----------------------------------------------------------------------------#
@@ -237,14 +238,14 @@ def create_app(test_config=None):
         if not search_term:
             abort(422, 'unprocessable')
 
+        selection = Question.query.filter(
+            Question.question.ilike('%{}%'.format(search_term))
+            )
+
+        if not selection:
+            abort(404,'Question not found!')
+
         try:
-            selection = Question.query.filter(
-                Question.question.ilike('%{}%'.format(search_term))
-                )
-
-            if not selection:
-                abort(404,'Question not found!')
-
             current_questions = paginate_questions(request, selection)
             return jsonify({
                 'success': True,
@@ -259,11 +260,11 @@ def create_app(test_config=None):
     # ----------------------------------------------------------------------------#
     @app.route('/quizzes', methods=['POST'])
     def play_quiz():
-        try:
-            body = request.get_json()
-            quiz_category = body.get('quiz_category', None)
-            previous_question = body.get('previous_question', None)
+        body = request.get_json()
+        quiz_category = body.get('quiz_category', None)
+        previous_question = body.get('previous_question', None)
 
+        try:
             if quiz_category['id'] == 0:
                 if previous_question is None:
                     questions = Question.query.all()

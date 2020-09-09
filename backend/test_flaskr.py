@@ -95,7 +95,8 @@ class TriviaTestCase(unittest.TestCase):
             'question': 'a',
             'answer': 'a',
             'category': 1,
-            'difficulty': 3
+            'difficulty': 3,
+            'rating': 5
         }
         res = self.client().post('/questions', json=post_data)
         data = json.loads(res.data)
