@@ -141,8 +141,35 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'],"Question not found!")
+        self.assertEqual(data['message'],"Question not found")
 
+    def test_404_post_paginated_search_questions_beyond_valid_page(self):
+        search_term = {"searchTerm": "what"}
+        res = self.client().post('/search?page=1000', json=search_term)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'],"unprocessable")
+
+    def test_post_play_quiz(self):
+        test_quiz = {
+            'previous_question':[],
+            'quiz_category':{'id':'1','type':'Science'}
+        }
+        res = self.client().post('/quizzes', json=test_quiz)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+
+    def test_422_post_play_quiz(self):
+        res = self.client().post('/quizzes')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'],"unprocessable")
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()
