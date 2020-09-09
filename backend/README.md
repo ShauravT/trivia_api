@@ -66,33 +66,12 @@ One note before you delve into your tasks: for each endpoint you are expected to
 8. Create a POST endpoint to get questions to play the quiz. This endpoint should take category and previous question parameters and return a random questions within the given category, if provided, and that is not one of the previous questions.
 9. Create error handlers for all expected errors including 400, 404, 422 and 500.
 
-REVIEW_COMMENT
-```
-This README is missing documentation of your endpoints. Below is an example for your endpoint to get all categories. Please use it as a reference for creating your documentation and resubmit your code.
 
-Endpoints
-GET '/categories'
-GET ...
-POST ...
-DELETE ...
-
-GET '/categories'
-* Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
-* Request Arguments: None
-* Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs.
-{'1' : "Science",
-'2' : "Art",
-'3' : "Geography",
-'4' : "History",
-'5' : "Entertainment",
-'6' : "Sports"}
-
-```
 ## API Endpoint Documentation
 
-# Categories
+### Categories
 
-POST '/categories'
+POST ```/categories```
 * Create a new category
 * Request Body:
 ```
@@ -118,7 +97,7 @@ POST '/categories'
     'total_categories': 7
                 }
 ```
-GET '/categories'
+GET ```/categories```
 * Fetches a dictionary of categories
 * Request Arguments: None
 * Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs.
@@ -136,7 +115,7 @@ GET '/categories'
         }
 }
 ```
-DELETE '/categories/<int:category_id>'
+DELETE ```/categories/<int:category_id>```
 * Deletes a category from the categories list.
 * Request parameters: `category_id`
 * Returns: True if successfully deleted
@@ -155,7 +134,7 @@ DELETE '/categories/<int:category_id>'
     'total_categories': '5'
 }
 
-GET '/categories/<int:category_id>/questions'
+GET ```/categories/<int:category_id>/questions```
 * Fetch questions by category
 * Request parameters: `category_id`
 * Example Response:
@@ -183,9 +162,9 @@ GET '/categories/<int:category_id>/questions'
     "success": true,
     "total_questions": 19
 }
-# QUESTIONS
+### Questions
 
-POST 'questions'
+POST ```questions```
 * Create a new question
 * Request Body:
 ```
@@ -216,7 +195,7 @@ POST 'questions'
     'total_question': 1
 }
 ```
-GET '/questions?page=<page_number>'
+GET ```/questions?page=<page_number>```
 * Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 * Fetches a dictionary of questions in which the keys are the answer, category, difficulty, id, question and rating
 * Request Arguments: 'page number'
@@ -255,7 +234,7 @@ GET '/questions?page=<page_number>'
     "total_questions": 19
 }
 ```
-DELETE '/questions/<int:question_id>'
+DELETE ```/questions/<int:question_id>```
 * Deletes a question from the questions list.
 * Request parameters: `question_id`
 * Returns: True if successfully deleted
@@ -277,7 +256,7 @@ DELETE '/questions/<int:question_id>'
     'total_questions': '1'
 }
 ```
-POST '/search'
+POST ```/search```
 * Fetch questions based on search term
 * Request Body:
 ```
@@ -302,7 +281,7 @@ POST '/search'
     'total_questions': 1
             }
 ```
-POST '/quizzes'
+POST ```/quizzes```
 * Fetch questions to play quiz
 * Request body:
 ```
