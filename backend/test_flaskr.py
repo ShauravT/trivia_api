@@ -57,11 +57,12 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'],'Required object keys missing from request')
 
+    # Uncomment and change id(currently '15') with id that exists in db
     # def test_delete_category(self):
     #     res = self.client().delete('/categories/15')
     #     data = json.loads(res.data)
 
-    #     category = Category.query.filter(Category.id == 17).one_or_none()
+    #     category = Category.query.filter(Category.id == 15).one_or_none()
 
     #     self.assertEqual(res.status_code, 200)
     #     self.assertEqual(data['success'], True)
@@ -116,6 +117,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'],'Required object keys missing from request')
 
+    # Uncomment and change id(currently '38') with id that exists in db
     # def test_delete_question(self):
     #     res = self.client().delete('/questions/38')
     #     data = json.loads(res.data)
@@ -134,6 +136,30 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'Question with id:1000 not found')
+
+    def test_get_questions_by_category(self):
+        res = self.client().get('/categories/1/questions')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(data['current_id'], 1)
+
+    def test_422_get_questions_by_category(self):
+        res = self.client().get('/categories/1000/questions')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'unprocessable')
+
+    def test_422_get_questions_by_category_beyond_valid_page(self):
+        res = self.client().get('/categories/1/questions?page=1000')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'unprocessable')
 
     def test_post_paginated_search_questions(self):
         search_term = {"searchTerm": "what"}
