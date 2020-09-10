@@ -75,7 +75,7 @@ def create_app(test_config=None):
                 },
                 'total_categories': len(categories)
                 })
-        except:
+        except Exception:
             return abort(422, "unprocessable")
 
     # Read
@@ -113,7 +113,7 @@ def create_app(test_config=None):
                 'total_categories': len(categories)
                 })
 
-        except:
+        except Exception:
             return abort(404, f'Category with id:{category_id} not found')
 
     # Search by Category
@@ -136,7 +136,7 @@ def create_app(test_config=None):
                 'current_category': category_id
             })
 
-        except:
+        except Exception:
             return abort(422, "unprocessable")
 
     # ----------------------------------------------------------------------------#
@@ -175,7 +175,7 @@ def create_app(test_config=None):
                 'questions': current_questions,
                 'total_question': len(Question.query.all())
                 })
-        except:
+        except Exception:
             return abort(422, "unprocessable")
 
     # Read
@@ -202,7 +202,7 @@ def create_app(test_config=None):
                     category.id: category.type for category in categories
                     }
                 })
-        except:
+        except Exception:
             abort(404, 'Questions not found')
 
     # Delete
@@ -228,7 +228,7 @@ def create_app(test_config=None):
                 'questions': current_questions,
                 'total_questions': len(Question.query.all())
                 })
-        except:
+        except Exception:
             return abort(500)
 
     # Search by text
@@ -294,7 +294,7 @@ def create_app(test_config=None):
                 'question': question.format()
             })
 
-        except:
+        except Exception:
             return abort(422, "unprocessable")
 
     # ----------------------------------------------------------------------------#
