@@ -133,7 +133,7 @@ DELETE ```/categories/<int:category_id>```
         }
     'total_categories': '5'
 }
-
+```
 GET ```/categories/<int:category_id>/questions```
 * Fetch questions by category
 * Request parameters: `category_id`
@@ -162,6 +162,7 @@ GET ```/categories/<int:category_id>/questions```
     "success": true,
     "total_questions": 19
 }
+```
 ### Questions
 
 POST ```questions```
