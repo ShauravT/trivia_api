@@ -287,7 +287,7 @@ def create_app(test_config=None):
                         Question.id.notin_(previous_questions)
                         ).all()
 
-            question = random.choice(questions) if len(questions) > 0 else ''
+            question = random.choice(questions) if len(questions) > 0 else []
 
             return jsonify({
                 'success': True,
